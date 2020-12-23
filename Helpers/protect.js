@@ -19,7 +19,7 @@ module.exports.protect= async(req,res,next)=>{
     }
     try {
         const decoded = jwt.verify(token,process.env.JWT_SECRET);
-        req.user = await User.findOne({_id:decoded.id});
+        req.user = await User.findOne({email:decoded.id});
         next();
     } catch (error) {
         return res

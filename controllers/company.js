@@ -68,7 +68,7 @@ module.exports.login = async (req, res, next) => {
                 );
         }
         else {
-            const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '30d' });
+            const token = jwt.sign({ id: user.email }, process.env.JWT_SECRET, { expiresIn: '30d' });
             return res
                 .status(statusCode.success)
                 .header('Authorization', 'Bearer ' + token)
@@ -109,7 +109,6 @@ module.exports.addUser = async (req, res, next) => {
                     )
                 );
         }
-        console.log(req.user)
         if (req.user.isAdmin == false) {
             return res
                 .status(statusCode.bad)
