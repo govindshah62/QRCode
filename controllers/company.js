@@ -5,8 +5,6 @@ const { statusCode, returnJsonResponse, returnErrorJsonResponse } = require("../
 const User = require('../models/User');
 const Ticket = require('../models/Ticket');
 
-
-
 module.exports.login = async (req, res, next) => {
     try {
         const { email, password } = req.body;
@@ -221,7 +219,7 @@ module.exports.createTicket = async (req, res, next) => {
                 );
         }
         else {
-            ticket = new Ticket({
+            const ticket = new Ticket({
                 fileName: fileName,
                 senderPersonName: senderPersonName,
                 senderEmailId: senderEmailId,
@@ -247,7 +245,7 @@ module.exports.createTicket = async (req, res, next) => {
                                 "Something went wrong, Please try again",
                                 error
                             )
-                        );;
+                        );
                 };
                 return res
                     .status(statusCode.success)
@@ -329,70 +327,65 @@ module.exports.getTickets = async (req, res, next) => {
     }
 };
 
-module.exports.compareLicenseNo = async (req, res, next) => {
+module.exports.addAdminUser = async (req, res, next) => {
     try {
-        await MasterUser.findOne({ licenseNo: req.body.licenseNo }, (error, user) => {
-            if (error) {
-                return res
-                    .status(statusCode.bad)
-                    .json(
-                        returnErrorJsonResponse(
-                            statusCode.bad,
-                            "fail",
-                            "Something went wrong, Please try again",
-                            error
-                        )
-                    );
-            }
-            else if (!user) {
-                return res
-                    .status(statusCode.unauthorized)
-                    .json(
-                        returnErrorJsonResponse(
-                            statusCode.unauthorized,
-                            "fail",
-                            "We were unable to find the entered License Number."
-                        )
-                    );
-            } else {
-                const LUser = new User({
-                    licenseKey: user.licenseKey,
-                    isAdmin: user.isAdmin,
-                    isVerified: user.isVerified,
-                    companyName: user.companyName,
-                    email: user.email,
-                    option: user.option,
-                    licenseNo: user.licenseNo,
-                    password: user.password
-                });
-                LUser.save((error) => {
-                    if (error) {
-                        console.log(error)
-                        return res
-                            .status(statusCode.bad)
-                            .json(
-                                returnErrorJsonResponse(
-                                    statusCode.bad,
-                                    "fail",
-                                    "Something went wrong, Please try again",
-                                    error
-                                )
-                            );
-                    };
+        const {
+            companyName,
+            email,
+            isAdmin,
+            isVerified,
+            option,
+            licenseKey,
+            licenseNo,
+            password,
+        } = req.body;
+        if (!companyName || !email || !isAdmin || !isVerified || !option || !licenseKey || !licenseNo || !password) {
+            return res
+                .status(statusCode.nocontent)
+                .json(
+                    returnErrorJsonResponse(
+                        statusCode.nocontent,
+                        "fail",
+                        "Please fill all the required fileds",
+                    )
+                );
+        }
+        else {
+            const user = new User({
+                companyName: companyName,
+                email: email,
+                isAdmin: isAdmin,
+                isVerified: isVerified,
+                option: option,
+                licenseKey: licenseKey,
+                licenseNo: licenseNo,
+                password: password
+            });
+            user.save((error) => {
+                if (error) {
                     return res
-                        .status(statusCode.success)
+                        .status(statusCode.bad)
                         .json(
-                            returnJsonResponse(
-                                statusCode.success,
-                                "success",
-                                "Your License Number has been successfully verified."
+                            returnErrorJsonResponse(
+                                statusCode.bad,
+                                "fail",
+                                "Something went wrong, Please try again",
+                                error
                             )
                         );
-                });
-            }
-        })
+                };
+                return res
+                    .status(statusCode.success)
+                    .json(
+                        returnJsonResponse(
+                            statusCode.success,
+                            "success",
+                            "AdminUser Saved Successfully"
+                        )
+                    );
+            });
+        };
     } catch (error) {
-        console.log(error)
         return res
             .status(statusCode.error)
             .json(
@@ -403,5 +396,5 @@ module.exports.compareLicenseNo = async (req, res, next) => {
                     error
                 )
             );
-    }
+    };
 };
