@@ -18,7 +18,20 @@ module.exports.login = async (req, res, next) => {
                         "Please enter all the required fileds",
                     )
                 );
-        }
+        };
+        let encryptUser = await User.findOne({ isAdmin: true });
+        let dcrypt = JSON.parse(decrypt(encryptUser.licenseKey));
+        if(new Date(dcrypt.expiryDate) < new Date(Date.now())){
+            return res
+                .status(statusCode.unauthorized)
+                .json(
+                    returnJsonResponse(
+                        statusCode.unauthorized,
+                        "Fail",
+                        "Your Subscription has expired, Please renew your Subscription!!",
+                    )
+                );
+        };
         const user = await User.findOne({ email }).select('+password');
         if (!user) {
             return res
@@ -108,7 +121,7 @@ module.exports.addUser = async (req, res, next) => {
                         "Please enter all the required fileds",
                     )
                 );
-        }
+        };
         if (req.user.isAdmin == false) {
             return res
                 .status(statusCode.bad)
@@ -119,7 +132,7 @@ module.exports.addUser = async (req, res, next) => {
                         "You are not authorised to Add User!!"
                     )
                 );
-        }
+        };
         let addedUser = await User.find().countDocuments() - 1;
         let encryptUser = await User.findOne({ isAdmin: true });
         let dcrypt = JSON.parse(decrypt(encryptUser.licenseKey));
