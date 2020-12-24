@@ -90,7 +90,7 @@ module.exports.login = async (req, res, next) => {
                         statusCode.success,
                         "success",
                         "Successfully logged-in",
-                        user.isAdmin
+                        {isAdmin:user.isAdmin, Token:token}
                     )
                 );
         }
