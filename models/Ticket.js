@@ -5,7 +5,11 @@ const ticketSchema = new mongoose.Schema({
         type:String
     },
     senderEmailId: {
-        type:String
+        type:String,
+        required: [true, 'Please add an email'],
+        match: [
+            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+            'Please add a valid email']
     },
     senderDepartment: {
         type:String
@@ -17,7 +21,11 @@ const ticketSchema = new mongoose.Schema({
         type:String
     },
     receiverEmailId: {
-        type:String
+        type:String,
+        required: [true, 'Please add an email'],
+        match: [
+            /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+            'Please add a valid email']
     },
     receiverCompany: {
         type:String
@@ -41,6 +49,7 @@ const ticketSchema = new mongoose.Schema({
         type: Date,
         default: Date.now
     }
-});
+},
+{versionKey:false});
 
 module.exports = mongoose.model('Tickets',ticketSchema);

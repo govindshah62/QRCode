@@ -21,7 +21,7 @@ module.exports.login = async (req, res, next) => {
         };
         let encryptUser = await User.findOne({ isAdmin: true });
         let dcrypt = JSON.parse(decrypt(encryptUser.licenseKey));
-        if(new Date(dcrypt.expiryDate) < new Date(Date.now())){
+        if (new Date(dcrypt.expiryDate) < new Date(Date.now())) {
             return res
                 .status(statusCode.unauthorized)
                 .json(
@@ -90,7 +90,7 @@ module.exports.login = async (req, res, next) => {
                         statusCode.success,
                         "success",
                         "Successfully logged-in",
-                        {isAdmin:user.isAdmin, Token:token}
+                        { isAdmin: user.isAdmin, Token: token }
                     )
                 );
         }
@@ -221,7 +221,7 @@ module.exports.createTicket = async (req, res, next) => {
             QRCode } = req.body;
         if (!fileName || !senderPersonName || !senderEmailId || !senderDepartment || !senderCompany || !receiverPersonName || !receiverEmailId || !receiverCompany || !receiverDepartment || !courierTrackingId || !courierCompany || !fileSendDate || !QRCode) {
             return res
-                .status(statusCode.nocontent)
+                .status(statusCode.bad)
                 .json(
                     returnErrorJsonResponse(
                         statusCode.nocontent,
@@ -410,3 +410,56 @@ module.exports.addAdminUser = async (req, res, next) => {
             );
     };
 };
+
+module.exports.deleteUser = async (req, res, next) => {
+    try {
+        await Ticket.updateMany({ senderEmailId: 'bhy' }, { senderEmailId: 'govindshah@gmail.com' }, (error, doc) => {
+            console.log(error)
+            console.log(doc)
+        });
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+module.exports.searchTicket = async (req, res, next) => {
+    try {
+        let { start, end } = req.body;
+        if (start == "" || start == " ") {
+            start = 0;
+        };
+        if(!end){
+            return res
+                .status(statusCode.bad)
+                .json(
+                    returnErrorJsonResponse(
+                        statusCode.nocontent,
+                        "fail",
+                        "Please enter search parameter!!",
+                    )
+                );
+        };
+        const tickets = await Ticket.find().sort('-createdAt').skip(start).limit(end);
+        return res
+            .status(statusCode.success)
+            .json(
+                returnJsonResponse(
+                    statusCode.success,
+                    "success",
+                    "Ticket Fetched Successfully",
+                    tickets
+                )
+            )
+    } catch (error) {
+        return res
+            .status(statusCode.error)
+            .json(
+                returnErrorJsonResponse(
+                    statusCode.error,
+                    "fail",
+                    "Something went wrong, Please try again",
+                    error
+                )
+            );
+    }
+}
