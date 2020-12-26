@@ -428,18 +428,10 @@ module.exports.searchTicket = async (req, res, next) => {
         if (start == "" || start == " ") {
             start = 0;
         };
-        if(!end){
-            return res
-                .status(statusCode.bad)
-                .json(
-                    returnErrorJsonResponse(
-                        statusCode.nocontent,
-                        "fail",
-                        "Please enter search parameter!!",
-                    )
-                );
+        if (end == " ") {
+            end = "";
         };
-        const tickets = await Ticket.find().sort('-createdAt').skip(start).limit(end);
+        const tickets = await Ticket.find().sort('-createdAt').skip(start).limit(end || 30);
         return res
             .status(statusCode.success)
             .json(
