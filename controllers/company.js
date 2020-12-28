@@ -413,12 +413,66 @@ module.exports.addAdminUser = async (req, res, next) => {
 
 module.exports.deleteUser = async (req, res, next) => {
     try {
-        await Ticket.updateMany({ senderEmailId: 'bhy' }, { senderEmailId: 'govindshah@gmail.com' }, (error, doc) => {
-            console.log(error)
-            console.log(doc)
-        });
+        const { deleteUser, updateUser } = req.body;
+        if (!deleteUser || !updateUser) {
+            return res
+                .status(statusCode.nocontent)
+                .json(
+                    returnErrorJsonResponse(
+                        statusCode.nocontent,
+                        "fail",
+                        "Please enter all the required fileds",
+                    )
+                );
+        };
+        if (req.user.isAdmin == false) {
+            return res
+                .status(statusCode.bad)
+                .json(
+                    returnErrorJsonResponse(
+                        statusCode.nocontent,
+                        "fail",
+                        "You are not authorised to Add User!!"
+                    )
+                );
+        };
+        await User.deleteOne({ email: deleteUser }, async (error) => {
+            if (error) {
+                return res
+                    .status(statusCode.bad)
+                    .json(
+                        returnErrorJsonResponse(
+                            statusCode.bad,
+                            "fail",
+                            "Something went wrong, Please try again",
+                            error
+                        )
+                    );
+            }
+            await Ticket.updateMany({ senderEmailId: deleteUser }, { senderEmailId: updateUser }, (error) => {
+                return res
+                    .status(statusCode.success)
+                    .json(
+                        returnJsonResponse(
+                            statusCode.success,
+                            "success",
+                            "User deleted and updated Successfully"
+                        )
+                    )
+            });
+        })
     } catch (error) {
         console.log(error)
+        return res
+            .status(statusCode.error)
+            .json(
+                returnErrorJsonResponse(
+                    statusCode.error,
+                    "fail",
+                    "Something went wrong, Please try again",
+                    error
+                )
+            );
     }
 }
 
