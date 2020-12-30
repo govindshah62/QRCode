@@ -416,7 +416,7 @@ module.exports.deleteUser = async (req, res, next) => {
         const { deleteUser, updateUser } = req.body;
         if (!deleteUser || !updateUser) {
             return res
-                .status(statusCode.nocontent)
+                .status(statusCode.bad)
                 .json(
                     returnErrorJsonResponse(
                         statusCode.nocontent,
@@ -486,6 +486,45 @@ module.exports.searchTicket = async (req, res, next) => {
             end = "";
         };
         const tickets = await Ticket.find().sort('-createdAt').skip(start).limit(end || 30);
+        return res
+            .status(statusCode.success)
+            .json(
+                returnJsonResponse(
+                    statusCode.success,
+                    "success",
+                    "Ticket Fetched Successfully",
+                    tickets
+                )
+            )
+    } catch (error) {
+        return res
+            .status(statusCode.error)
+            .json(
+                returnErrorJsonResponse(
+                    statusCode.error,
+                    "fail",
+                    "Something went wrong, Please try again",
+                    error
+                )
+            );
+    }
+}
+
+module.exports.ticketSearch = async (req, res, next) => {
+    try {
+        const searchString = req.body.searchString.trim();
+        if (!searchString) {
+            return res
+                .status(statusCode.bad)
+                .json(
+                    returnErrorJsonResponse(
+                        statusCode.nocontent,
+                        "fail",
+                        "Please enter search parameters.",
+                    )
+                );
+        };
+        const tickets = await Ticket.find({ $or: [{ receiverEmailId: searchString }, { receiverPersonName: searchString }, { receiverDepartment: searchString }, { receiverCompany: searchString }, { senderEmailId: searchString }, { senderPersonName: searchString }] }).sort('-createdAt');
         return res
             .status(statusCode.success)
             .json(
