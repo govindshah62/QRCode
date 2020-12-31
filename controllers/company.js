@@ -478,13 +478,8 @@ module.exports.deleteUser = async (req, res, next) => {
 
 module.exports.searchTicket = async (req, res, next) => {
     try {
-        let { start, end } = req.body;
-        if (start == "" || start == " ") {
-            start = 0;
-        };
-        if (end == " ") {
-            end = "";
-        };
+        let start = parseInt(req.body.start);
+        let end = parseInt(req.body.end);
         const tickets = await Ticket.find().sort('-createdAt').skip(start).limit(end || 30);
         return res
             .status(statusCode.success)
